@@ -1,24 +1,27 @@
-// api/ebay-scraper.js
+// 🔥 FlipCheck Famous Build — Latest Update (with Supabase Scraper Integration)
+
+// ✅ eBay Scraper Integration (Pushes to Supabase)
+// Scheduled via Vercel cron jobs (configured in vercel.json)
+// Uses: eBay Browse API + Supabase Insert
 
 import { createClient } from '@supabase/supabase-js';
 import fetch from 'node-fetch';
 
 const supabase = createClient(
   'https://gtcgramfcdllhuoszoah.supabase.co',
-  'your-anon-key' // Replace this with your real anon key again if removed
+  process.env.SUPABASE_ANON_KEY
 );
 
-const EBAY_AUTH_TOKEN = 'your-ebay-token'; // Replace with real token
-const keywords = ['iphone', 'macbook', 'nintendo'];
+const EBAY_AUTH_TOKEN = process.env.EBAY_AUTH_TOKEN;
 
 export default async function handler(req, res) {
-  console.log('📦 Starting eBay scraper job');
+  const keywords = req.query.q ? [req.query.q] : ['iphone'];
+  const logs = [];
 
   for (const query of keywords) {
-    console.log(`🔍 Searching eBay for: ${query}`);
-    const ebayURL = `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${query}&limit=5`;
-
     try {
+      const ebayURL = `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${query}&limit=5`;
+
       const ebayRes = await fetch(ebayURL, {
         headers: {
           Authorization: `Bearer ${EBAY_AUTH_TOKEN}`,
@@ -45,16 +48,32 @@ export default async function handler(req, res) {
         ]);
 
         if (error) {
-          console.error('❌ Supabase insert error:', error);
+          logs.push(`Insert error: ${error.message}`);
         } else {
-          console.log(`✅ Inserted: ${title}`);
+          logs.push(`Inserted: ${title}`);
         }
       }
     } catch (err) {
-      console.error(`❌ eBay fetch error for "${query}":`, err);
+      logs.push(`Query error for ${query}: ${err.message}`);
     }
   }
 
-  console.log('🏁 Scraper job finished');
-  res.status(200).json({ message: 'eBay data pushed to Supabase' });
+  return res.status(200).json({ message: 'eBay data sync complete', logs });
 }
+
+// ✅ Add to vercel.json:
+/*
+{
+  "functions": {
+    "api/ebay-scraper.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/ebay-scraper.js",
+      "schedule": "@every 15m"
+    }
+  ]
+}
+*/
