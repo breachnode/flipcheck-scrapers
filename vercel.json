@@ -6,7 +6,7 @@
   },
   "crons": [
     {
-      "path": "api/ebay-scraper.js",
+      "path": "/api/ebay-scraper.js",
       "schedule": "@every 15m"
     }
   ]
