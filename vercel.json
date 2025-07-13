@@ -1,0 +1,8 @@
+{
+  "functions": {
+    "api/ebay-scraper.js": {
+      "runtime": "nodejs18.x",
+      "schedule": "@every 15m"
+    }
+  }
+}
