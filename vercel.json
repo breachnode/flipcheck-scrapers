@@ -1,13 +1,8 @@
 {
-  "functions": {
-    "api/ebay-scraper.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "crons": [
     {
-      "path": "/api/ebay-scraper.js",
-      "schedule": "@every 15m"
+      "path": "/api/ebay-scraper",
+      "schedule": "*/15 * * * *"
     }
   ]
 }
